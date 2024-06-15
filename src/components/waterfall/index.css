@@ -1,0 +1,26 @@
+.waterfall{
+    width: 80%;
+    height: 1000px;
+    position: relative;
+}
+
+.box{
+    width: 220px;
+    margin: 20px;
+    position: absolute;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.box img{
+    width: 100%;
+    display: block;
+    transition: all 0.5s;
+}
+
+.waterfall .box img:hover {
+    transform: scale(1.2);
+}
+
+
