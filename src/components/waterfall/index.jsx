@@ -2,6 +2,10 @@
  *
  * 瀑布流
  *
+ * 思路：
+ * 1. 记录每列高度
+ * 2. 依次将每一张图片定位到最小列下面
+ *
  */
 
 import React, { useEffect, useState, useRef } from "react";
