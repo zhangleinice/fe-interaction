@@ -1,0 +1,75 @@
+# gitlab ci
+stages:
+  - install
+  - build
+  - test
+  - code-check
+  - deploy
+
+variables:
+  TEST_SERVER_IP: your_test_server_ip
+  UAT_SERVER_IP: your_uat_server_ip
+  PRODUCT_SERVER_IP: your_product_server_ip
+  TEST_URL: https://your-test-url.com
+  UAT_URL: https://your-uat-url.com
+  PRODUCT_URL: https://your-product-url.com
+
+install:
+  stage: install
+  script:
+    - npm install
+
+build:
+  stage: build
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - build
+
+test:
+  stage: test
+  script:
+    - npm run test
+
+code-check:
+  stage: code-check
+  script:
+    - npm run lint
+    - npm run security-check
+    - npm run coverage
+    - npm run quality-check
+  allow_failure: true
+
+deploy-test:
+  stage: deploy
+  script:
+    - ssh username@$TEST_SERVER_IP "mkdir -p /var/www/html"
+    - scp -r build/* username@$TEST_SERVER_IP:/var/www/html
+  environment:
+    name: test
+    url: $TEST_URL
+  only:
+    - test
+
+deploy-uat:
+  stage: deploy
+  script:
+    - ssh username@$UAT_SERVER_IP "mkdir -p /var/www/html"
+    - scp -r build/* username@$UAT_SERVER_IP:/var/www/html
+  environment:
+    name: uat
+    url: $UAT_URL
+  only:
+    - uat
+
+deploy-product:
+  stage: deploy
+  script:
+    - ssh username@$PRODUCT_SERVER_IP "mkdir -p /var/www/html"
+    - scp -r build/* username@$PRODUCT_SERVER_IP:/var/www/html
+  environment:
+    name: product
+    url: $PRODUCT_URL
+  only:
+    - product

@@ -1,0 +1,56 @@
+# Github Actions CI
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Code check
+        run: |
+          npm run lint
+          npm run security-check
+          npm run coverage
+          npm run quality-check
+        continue-on-error: true
+
+      - name: Deploy to Test
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.TEST_SERVER_IP }}
+          username: ${{ secrets.TEST_USERNAME }}
+          password: ${{ secrets.TEST_PASSWORD }}
+          source: "build/*"
+          target: "/var/www/html"
+
+      - name: Deploy to UAT
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.UAT_SERVER_IP }}
+          username: ${{ secrets.UAT_USERNAME }}
+          password: ${{ secrets.UAT_PASSWORD }}
+          source: "build/*"
+          target: "/var/www/html"
+
+      - name: Deploy to Product
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.PRODUCT_SERVER_IP }}
+          username: ${{ secrets.PRODUCT_USERNAME }}
+          password: ${{ secrets.PRODUCT_PASSWORD }}
+          source: "build/*"
+          target: "/var/www/html"
