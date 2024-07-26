@@ -39,6 +39,7 @@ code-check:
     - npm run security-check
     - npm run coverage
     - npm run quality-check
+    # 即使这个作业失败了，整个管道（Pipeline）仍然会被标记为成功。
   allow_failure: true
 
 deploy-test:
@@ -49,8 +50,8 @@ deploy-test:
   environment:
     name: test
     url: $TEST_URL
-  only:
-    - test
+    # 部署步骤需要手动触发，而不会在每次代码推送时自动执行。
+  when: manual
 
 deploy-uat:
   stage: deploy
@@ -60,8 +61,7 @@ deploy-uat:
   environment:
     name: uat
     url: $UAT_URL
-  only:
-    - uat
+  when: manual
 
 deploy-product:
   stage: deploy
@@ -71,5 +71,100 @@ deploy-product:
   environment:
     name: product
     url: $PRODUCT_URL
+  when: manual
   only:
-    - product
+    - main
+
+
+
+# doker
+stages:
+  - install
+  - build
+  - test
+  - code-check
+  - docker-build
+  - deploy
+
+variables:
+  TEST_SERVER_IP: your_test_server_ip
+  UAT_SERVER_IP: your_uat_server_ip
+  PRODUCT_SERVER_IP: your_product_server_ip
+  TEST_URL: https://your-test-url.com
+  UAT_URL: https://your-uat-url.com
+  PRODUCT_URL: https://your-product-url.com
+  DOCKER_IMAGE: your-docker-image
+
+install:
+  stage: install
+  script:
+    - npm install
+
+build:
+  stage: build
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - build
+
+test:
+  stage: test
+  script:
+    - npm run test
+
+code-check:
+  stage: code-check
+  script:
+    - npm run lint
+    - npm run security-check
+    - npm run coverage
+    - npm run quality-check
+  allow_failure: true  # 即使这个作业失败了，整个管道（Pipeline）仍然会被标记为成功。
+
+docker-build:
+  stage: docker-build
+  script:
+    - docker build -t $DOCKER_IMAGE .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $DOCKER_IMAGE
+  only:
+    - main
+
+deploy-test:
+  stage: deploy
+  script:
+    - ssh $SSH_USER@$TEST_SERVER_IP "docker pull $DOCKER_IMAGE && docker run -d -p 80:80 $DOCKER_IMAGE"
+  environment:
+    name: test
+    url: $TEST_URL
+  when: manual  # 部署步骤需要手动触发，而不会在每次代码推送时自动执行。
+
+deploy-uat:
+  stage: deploy
+  script:
+    - ssh $SSH_USER@$UAT_SERVER_IP "docker pull $DOCKER_IMAGE && docker run -d -p 80:80 $DOCKER_IMAGE"
+  environment:
+    name: uat
+    url: $UAT_URL
+  when: manual
+
+deploy-product:
+  stage: deploy
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $PRODUCT_SERVER_IP >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - ssh $SSH_USER@$PRODUCT_SERVER_IP "docker pull $DOCKER_IMAGE && docker run -d -p 80:80 $DOCKER_IMAGE"
+  environment:
+    name: product
+    url: $PRODUCT_URL
+  when: manual
+  only:
+    - main
+
