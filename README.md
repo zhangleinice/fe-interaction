@@ -1,3 +1,96 @@
+# 性能优化
+1. 网络
+   - 升级http2.0
+   - 使用cdn
+   - 减少dns查询：使用 DNS 预解析
+2. 静态资源缓存
+   - html：设置为 Cache-Control: no-store，禁止缓存。
+   - js
+      -  vendor 第三方库：设置 Cache-Control: max-age=31536000（1 年）
+      -  而应用代码则设置为 Cache-Control: no-cache
+   - css：设置为 Cache-Control: max-age=604800（1 周）
+   - img：设置为 Cache-Control: max-age=2592000（1 个月）
+   - 配合文件版本控制及时更新最新文件（webpack）
+     - 每次当文件内容发生变化时，构建工具会生成一个新的哈希值或版本号，从而生成一个新的文件名。
+     - 在web服务器 IIS，Nginx 或 Apache上设置
+3. ajax缓存
+   - 动态内容通常不需要缓存
+   - 电子表格比较常用的可以单独在服务器接口设置http缓存，通过版本号判断更新
+   - 相当于服务器给前端一个动态版本号，前端每次请求在url上带上版本号，版本号变化资源更新重新请求，不变则走缓存
+4. 合理配置etag（建议禁用）
+   - IIS服务器上：即使文件内容没有发生变化，但由于 ChangeNumber 改变，导致生成的 ETag 也发生变化，从而影响缓存命中率。
+   - nginx，Apache：ETag 也有可能在某些特殊情况下引发问题；关键在于合理配置和优化 ETag 生成策略，特别是在多服务器或分布式环境中
+   - 建议禁用etag，使用 Last-Modified 与 If-Modified-Since
+   - 如果你的应用场景对缓存命中率要求高，并且文件更新较少或比较可控，使用 Last-Modified 和 If-Modified-Since 可以带来更好的效果。
+   - 如果需要更精细的控制，比如需要对每次细微的更新都能够标识，可以保留或优化 ETag 的使用，但确保 ChangeNumber 不影响标识的生成。
+5. nginx详细配置
+```bash
+   server {
+      listen 443 ssl http2;
+      server_name yourdomain.com;
+
+      # SSL 配置（根据你实际的证书路径填写）
+      ssl_certificate /path/to/certificate.crt;
+      ssl_certificate_key /path/to/privatekey.key;
+
+      # 静态资源缓存设置
+
+      # 禁止 HTML 缓存
+      location ~* \.html$ {
+         add_header Cache-Control "no-store";
+      }
+
+      # 第三方 JS 库缓存 1 年
+      location ~* \.(js|jsx)$ {
+         add_header Cache-Control "max-age=31536000, immutable";
+      }
+
+      # 应用代码 JS 禁用缓存
+      location ~* \.app.js$ {
+         add_header Cache-Control "no-cache";
+      }
+
+      # CSS 文件缓存 1 周
+      location ~* \.css$ {
+         add_header Cache-Control "max-age=604800";
+      }
+
+      # 图片文件缓存 1 个月
+      location ~* \.(jpg|jpeg|png|gif|ico|svg)$ {
+         add_header Cache-Control "max-age=2592000";
+      }
+
+      # 文件版本控制
+      # 通过 Webpack 等构建工具生成版本号的静态文件
+      location /static/ {
+         root /path/to/your/static/files;
+         try_files $uri /index.html;
+      }
+
+      # AJAX 接口缓存设置
+      # 动态内容不缓存
+      location /api/ {
+         proxy_pass http://backend_api;  # 替换为你的后端 API 地址
+         add_header Cache-Control "no-cache";
+      }
+
+      # 禁用 ETag，启用 Last-Modified
+      etag off;
+      add_header Last-Modified $date_gmt;
+
+      # 其他常规配置
+      location / {
+         try_files $uri $uri/ =404;
+      }
+
+      # 重定向 HTTP 到 HTTPS
+      server {
+         listen 80;
+         server_name yourdomain.com;
+         return 301 https://$host$request_uri;
+      }
+   }
+```
 
 
 # http缓存设置
@@ -8,6 +101,10 @@
    - 而应用代码则设置为 Cache-Control: no-cache，以便在更新时能够及时获取最新版本。
 3. .css 文件仍然缓存一周，因为通常情况下样式文件更新频率较低。
 4. 图片文件保持一个月的缓存时间，这是一个合理的时间范围，可以平衡缓存效益和内容更新。
+5. 配合文件版本控制及时更新最新文件（webpack）
+   - 每次当文件内容发生变化时，构建工具会生成一个新的哈希值或版本号，从而生成一个新的文件名。
+   - 在web服务器 IIS，Nginx 或 Apache上设置
+
 
 
 ## no-cache 与 no-store
