@@ -1,16 +1,19 @@
 .waterfall{
-    width: 80%;
-    height: 1000px;
+    width: 100%;
+    min-height: 1000px;
     position: relative;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
 .box{
     width: 220px;
-    margin: 20px;
     position: absolute;
     border-radius: 10px;
     overflow: hidden;
     transition: all 0.3s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .box img{

@@ -22,12 +22,10 @@ const images = importAll(
 const Waterfall = () => {
   const waterfallRef = useRef(null);
   const imgWidth = 220;
-
+  const [imagesLoaded, setImagesLoaded] = useState(0);
   const [columnHeights, setColumnHeights] = useState([]);
-
   const [columnInfo, setColumnInfo] = useState(null);
 
-  //   resize不生效
   useEffect(() => {
     getColumnInfo();
     window.addEventListener("resize", getColumnInfo);
@@ -37,23 +35,26 @@ const Waterfall = () => {
   }, []);
 
   useEffect(() => {
-    window.addEventListener("load", layout);
+    if (imagesLoaded === images.length) {
+      layout();
+    }
+  }, [imagesLoaded, columnInfo]);
 
-    return () => {
-      window.removeEventListener("load", layout);
-    };
-  }, [columnInfo]);
+  const handleImageLoad = () => {
+    setImagesLoaded((prev) => prev + 1);
+  };
 
   const getColumnInfo = () => {
     const waterfall = waterfallRef.current;
+    if (!waterfall) return;
 
     let waterfallWidth = waterfall.offsetWidth;
-
     let column = Math.floor(waterfallWidth / imgWidth);
-    let gapCount = column - 1;
+    let gapCount = Math.max(column - 1, 1);
     let freeSpace = waterfallWidth - imgWidth * column;
-    let gap = freeSpace / gapCount;
-    setColumnInfo({ gap: gap, column: column });
+    let gap = Math.max(freeSpace / gapCount, 10); // 确保最小间距
+
+    setColumnInfo({ gap, column });
     setColumnHeights(new Array(column).fill(0));
   };
 
@@ -61,7 +62,6 @@ const Waterfall = () => {
     if (!columnInfo || !waterfallRef.current) return;
 
     const boxes = Array.from(waterfallRef.current.children);
-
     let newColumnHeights = [...columnHeights];
 
     boxes.forEach((box) => {
@@ -70,10 +70,15 @@ const Waterfall = () => {
 
       box.style.position = "absolute";
       box.style.left = `${columnIndex * (imgWidth + columnInfo.gap)}px`;
-      box.style.top = `${minHeight + columnInfo.gap}px`;
+      box.style.top = `${minHeight + 20}px`; // 添加固定上边距
 
-      newColumnHeights[columnIndex] += box.offsetHeight + columnInfo.gap / 2; // 更新列高度
+      const boxHeight = box.offsetHeight;
+      newColumnHeights[columnIndex] += boxHeight + 20; // 添加固定间距
     });
+
+    // 设置容器高度
+    const maxHeight = Math.max(...newColumnHeights);
+    waterfallRef.current.style.height = `${maxHeight + 20}px`;
 
     setColumnHeights(newColumnHeights);
   };
@@ -82,7 +87,7 @@ const Waterfall = () => {
     <div className="waterfall" ref={waterfallRef}>
       {images.map((img, idx) => (
         <div className="box" key={idx}>
-          <img src={img} alt={`img ${idx + 1}`} />
+          <img src={img} alt={`img ${idx + 1}`} onLoad={handleImageLoad} />
         </div>
       ))}
     </div>

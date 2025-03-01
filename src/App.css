@@ -1,0 +1,16 @@
+.App {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.carousel-section {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.waterfall-section {
+  width: 100%;
+  box-sizing: border-box;
+} 

@@ -1,11 +1,16 @@
 import Waterfall from "./components/waterfall";
-import VirtualList from "./components/virtuallist";
+import Carousel from "./components/carousel";
+import "./App.css";
 
 function App() {
   return (
     <div className="App">
-      {/* <VirtualList /> */}
-      <Waterfall />
+      <div className="carousel-section">
+        <Carousel />
+      </div>
+      <div className="waterfall-section">
+        <Waterfall />
+      </div>
     </div>
   );
 }
