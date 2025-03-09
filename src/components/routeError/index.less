@@ -1,0 +1,78 @@
+// 变量定义
+@error-bg-color: #ffebee;
+@error-border-color: #f44336;
+@error-button-color: #2196f3;
+@error-button-hover-color: #1976d2;
+@error-text-color: #333;
+@error-message-color: #666;
+
+// 路由错误容器
+.route-error-container {
+  padding: 20px;
+  background-color: @error-bg-color;
+  border: 1px solid @error-border-color;
+  border-radius: 8px;
+  margin: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 600px;
+  margin: 40px auto;
+}
+
+// 错误标题
+.route-error-title {
+  color: @error-text-color;
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+// 错误信息
+.route-error-message {
+  color: @error-message-color;
+  margin-bottom: 20px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+// 错误按钮
+.route-error-button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: @error-button-color;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+  
+  &:hover {
+    background-color: @error-button-hover-color;
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
+  }
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .route-error-container {
+    margin: 20px;
+    padding: 15px;
+  }
+  
+  .route-error-title {
+    font-size: 20px;
+  }
+  
+  .route-error-message {
+    font-size: 14px;
+  }
+  
+  .route-error-button {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+} 

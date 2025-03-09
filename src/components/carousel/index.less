@@ -1,0 +1,120 @@
+// 变量定义
+@carousel-dot-size: 10px;
+@carousel-button-size: 40px;
+@carousel-transition-time: 0.5s;
+@carousel-height: 600px;
+@carousel-button-bg: rgba(255, 255, 255, 0.5);
+@carousel-button-hover-bg: rgba(255, 255, 255, 0.8);
+@carousel-button-color: #333;
+@carousel-dot-bg: rgba(255, 255, 255, 0.5);
+@carousel-dot-active-bg: white;
+
+// 轮播图容器
+.carousel-container {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+// 轮播图包装器
+.carousel-wrapper {
+  display: flex;
+  width: 100%;
+  height: @carousel-height;
+}
+
+// 轮播图幻灯片
+.carousel-slide {
+  flex: 0 0 100%;
+  position: relative;
+  transition: transform @carousel-transition-time ease;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// 轮播图按钮
+.carousel-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: @carousel-button-bg;
+  border: none;
+  width: @carousel-button-size;
+  height: @carousel-button-size;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  color: @carousel-button-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+  z-index: 10;
+  
+  &:hover {
+    background: @carousel-button-hover-bg;
+  }
+  
+  &.prev {
+    left: 10px;
+  }
+  
+  &.next {
+    right: 10px;
+  }
+}
+
+// 轮播图指示点
+.carousel-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+  
+  .dot {
+    width: @carousel-dot-size;
+    height: @carousel-dot-size;
+    border-radius: 50%;
+    background: @carousel-dot-bg;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    
+    &.active {
+      background: @carousel-dot-active-bg;
+    }
+    
+    &:hover {
+      background: @carousel-button-hover-bg;
+    }
+  }
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .carousel-wrapper {
+    height: 400px;
+  }
+  
+  .carousel-button {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+  
+  .carousel-dots {
+    bottom: 10px;
+    
+    .dot {
+      width: 8px;
+      height: 8px;
+    }
+  }
+} 

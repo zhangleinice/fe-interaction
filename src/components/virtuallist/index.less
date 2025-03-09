@@ -1,0 +1,69 @@
+// 变量定义
+@virtual-list-bg: #f5f7fa;
+@virtual-list-item-border: #eaeaea;
+@virtual-list-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+// 虚拟列表容器
+.virtual-list-container {
+  margin-top: 20px;
+  width: 100%;
+  overflow-y: auto;
+  position: relative;
+  background-color: @virtual-list-bg;
+  border-radius: 8px;
+  box-shadow: @virtual-list-shadow;
+}
+
+// 虚拟列表占位元素
+.virtual-list-phantom {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+// 虚拟列表内容
+.virtual-list {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+// 虚拟列表项目
+.virtual-list-item {
+  box-sizing: border-box;
+  width: 100%;
+  border-bottom: 1px solid @virtual-list-item-border;
+  overflow: hidden;
+  position: relative;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  // 悬停效果
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+}
+
+// 虚拟列表图片
+.virtual-list-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .virtual-list-container {
+    margin-top: 10px;
+  }
+} 

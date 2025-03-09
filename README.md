@@ -324,6 +324,38 @@ React Fiber 是 React 中负责处理渲染和更新的核心机制，它通过�
 ### bff
 
 
+### redux
+   1. class方式,以hoc方式进行交互
+   ```js
+      @connect(state => state, dispatch => dispatch)(component) 
+
+      action
+
+      Reducer => {state, dispatch}
+   ```
+   2. hooks
+   ```js
+      // 推荐用useSelector和useDispatch替代connect
+      const status = useAppSelector((state) => state.counter.status);
+      const dispatch = useAppDispatch();
+
+      // createSlice 用于简化 Redux 中 reducer 和 action 的创建过程
+      export const counterSlice = createSlice({
+         name: 'counter',
+         initialState,
+         reducers: {
+            increment: (state) => {
+               state.value += 1;
+            },
+         },
+      });
+   ```
+
+   ### 埋点
+
+   ### 监控
+
+
 
 
 
